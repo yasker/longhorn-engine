@@ -280,6 +280,7 @@ func (f *RawFrontendFile) Attr(ctx context.Context, a *fuse.Attr) error {
 }
 
 func (f *RawFrontendFile) Open(cxt context.Context, req *fuse.OpenRequest, resp *fuse.OpenResponse) (fs.Handle, error) {
+	resp.Flags |= fuse.OpenDirectIO
 	return f, nil
 }
 
