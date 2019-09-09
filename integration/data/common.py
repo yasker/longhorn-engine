@@ -419,7 +419,7 @@ def grpc_replica_client(request, replica_name, args=[]):
 
     listen = get_replica_address(r)
 
-    c = ReplicaClient(listen)
+    c = ReplicaClient(replica_name, listen)
     return cleanup_replica(c)
 
 

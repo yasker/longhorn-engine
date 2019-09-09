@@ -13,6 +13,7 @@ import (
 	replicarpc "github.com/longhorn/longhorn-engine/replica/rpc"
 	syncagentrpc "github.com/longhorn/longhorn-engine/sync/rpc"
 	"github.com/longhorn/longhorn-engine/types"
+	"github.com/longhorn/longhorn-engine/util"
 )
 
 const (
@@ -26,7 +27,12 @@ type ReplicaClient struct {
 	syncAgentServiceURL string
 }
 
-func NewReplicaClient(address string) (*ReplicaClient, error) {
+func NewReplicaClient(replica string) (*ReplicaClient, error) {
+	_, address, err := util.GetReplicaNameAndAddress(replica)
+	if err != nil {
+		return nil, err
+	}
+
 	if strings.HasPrefix(address, "tcp://") {
 		address = strings.TrimPrefix(address, "tcp://")
 	}

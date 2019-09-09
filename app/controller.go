@@ -100,6 +100,12 @@ func startController(c *cli.Context) error {
 	})
 
 	if len(replicas) > 0 {
+		for _, r := range replicas {
+			if _, _, err := util.GetReplicaNameAndAddress(r); err != nil {
+				return err
+			}
+		}
+
 		logrus.Infof("Starting with replicas %q", replicas)
 		if err := control.Start(replicas...); err != nil {
 			log.Fatal(err)

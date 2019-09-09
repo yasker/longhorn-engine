@@ -74,7 +74,11 @@ func (c *Controller) clientsAndSnapshot(name string) (map[string]*client.Replica
 			continue
 		}
 
-		if !strings.HasPrefix(replica.Address, "tcp://") {
+		_, address, err := util.GetReplicaNameAndAddress(replica.Address)
+		if err != nil {
+			return nil, "", fmt.Errorf("failed in clientsAndSnapshot %v:%v", name, err)
+		}
+		if !strings.HasPrefix(address, "tcp://") {
 			return nil, "", fmt.Errorf("Backend %s does not support revert", replica.Address)
 		}
 

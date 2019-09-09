@@ -78,7 +78,7 @@ def test_one_volume(pm_client, em_client):  # NOQA
         assert r.spec.name == name
         assert r.status.state == PROC_STATE_RUNNING
 
-        replica_args.append("tcp://localhost:"+str(r.status.port_start))
+        replica_args.append(name+"@tcp://localhost:"+str(r.status.port_start))
 
     engine_name = ENGINE_NAME_BASE + "0"
     volume_name = VOLUME_NAME_BASE + "0"
@@ -150,7 +150,8 @@ def test_multiple_volumes(pm_client, em_client):  # NOQA
         assert r.spec.name == replica_name
         assert r.status.state == PROC_STATE_RUNNING
 
-        replica_args.append("tcp://localhost:"+str(r.status.port_start))
+        addr = replica_name+"@tcp://localhost:"+str(r.status.port_start)
+        replica_args.append(addr)
 
         engine_name = ENGINE_NAME_BASE + str(i)
         volume_name = VOLUME_NAME_BASE + str(i)
@@ -210,7 +211,8 @@ def test_engine_upgrade(pm_client, em_client):  # NOQA
         assert r.spec.name == replica_name
         assert r.status.state == PROC_STATE_RUNNING
 
-        replica_args.append("tcp://localhost:"+str(r.status.port_start))
+        addr = replica_name+"@tcp://localhost:"+str(r.status.port_start)
+        replica_args.append(addr)
 
         engine_name = ENGINE_NAME_BASE + str(i)
         volume_name = VOLUME_NAME_BASE + str(i)
@@ -241,7 +243,7 @@ def test_engine_upgrade(pm_client, em_client):  # NOQA
     assert r.spec.name == replica_name_upgrade
     assert r.status.state == PROC_STATE_RUNNING
 
-    replica_args = ["tcp://localhost:"+str(r.status.port_start)]
+    replica_args = [replica_name+"@tcp://localhost:"+str(r.status.port_start)]
     e = em_client.engine_upgrade(engine_name,
                                  UPGRADE_LONGHORN_BINARY,
                                  SIZE, replica_args)

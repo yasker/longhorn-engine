@@ -7,6 +7,7 @@ import (
 	"github.com/urfave/cli"
 
 	"github.com/longhorn/longhorn-engine/sync"
+	"github.com/longhorn/longhorn-engine/util"
 )
 
 func AddReplicaCmd() cli.Command {
@@ -26,6 +27,10 @@ func addReplica(c *cli.Context) error {
 		return errors.New("replica address is required")
 	}
 	replica := c.Args()[0]
+
+	if _, _, err := util.GetReplicaNameAndAddress(replica); err != nil {
+		return err
+	}
 
 	url := c.GlobalString("url")
 	task := sync.NewTask(url)

@@ -365,3 +365,11 @@ func GetInitiatorNS() string {
 func GetFunctionName(i interface{}) string {
 	return runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
 }
+
+func GetReplicaNameAndAddress(replica string) (string, string, error) {
+	strs := strings.Split(replica, "@")
+	if len(strs) != 2 {
+		return "", "", fmt.Errorf("invalid replica address format, should be <name>@<address>, but %v", replica)
+	}
+	return strs[0], strs[1], nil
+}

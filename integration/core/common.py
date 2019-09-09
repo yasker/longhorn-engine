@@ -191,7 +191,7 @@ def grpc_replica_client(request):
     r = create_replica_process(pm_client, REPLICA_NAME)
 
     listen = get_replica_address(r)
-    c = ReplicaClient(listen)
+    c = ReplicaClient("replica1", listen)
     return cleanup_replica(c)
 
 
@@ -201,7 +201,7 @@ def grpc_replica_client2(request):
     r = create_replica_process(pm_client, REPLICA_2_NAME)
 
     listen = get_replica_address(r)
-    c = ReplicaClient(listen)
+    c = ReplicaClient("replica2", listen)
     return cleanup_replica(c)
 
 

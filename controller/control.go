@@ -123,13 +123,18 @@ func (c *Controller) canAdd(address string) (bool, error) {
 	return true, nil
 }
 
-func (c *Controller) addReplica(address string, snapshot bool) error {
+func (c *Controller) addReplica(replica string, snapshot bool) error {
 	c.Lock()
-	if ok, err := c.canAdd(address); !ok {
+	if ok, err := c.canAdd(replica); !ok {
 		c.Unlock()
 		return err
 	}
 	c.Unlock()
+
+	_, address, err := util.GetReplicaNameAndAddress(replica)
+	if err != nil {
+		return err
+	}
 
 	newBackend, err := c.factory.Create(address)
 	if err != nil {
@@ -139,7 +144,7 @@ func (c *Controller) addReplica(address string, snapshot bool) error {
 	c.Lock()
 	defer c.Unlock()
 
-	return c.addReplicaNoLock(newBackend, address, snapshot)
+	return c.addReplicaNoLock(newBackend, replica, snapshot)
 }
 
 func (c *Controller) Snapshot(name string, labels map[string]string) (string, error) {
@@ -317,13 +322,13 @@ func (c *Controller) StartFrontend(frontend string) error {
 	return c.startFrontend()
 }
 
-func (c *Controller) Start(addresses ...string) error {
+func (c *Controller) Start(replicas ...string) error {
 	var expectedRevision int64
 
 	c.Lock()
 	defer c.Unlock()
 
-	if len(addresses) == 0 {
+	if len(replicas) == 0 {
 		return nil
 	}
 
@@ -334,7 +339,12 @@ func (c *Controller) Start(addresses ...string) error {
 	c.reset()
 
 	first := true
-	for _, address := range addresses {
+	for _, replica := range replicas {
+		_, address, err := util.GetReplicaNameAndAddress(replica)
+		if err != nil {
+			return err
+		}
+
 		newBackend, err := c.factory.Create(address)
 		if err != nil {
 			return err
@@ -360,11 +370,11 @@ func (c *Controller) Start(addresses ...string) error {
 			return fmt.Errorf("Backend sizes do not match %d != %d", c.sectorSize, newSectorSize)
 		}
 
-		if err := c.addReplicaNoLock(newBackend, address, false); err != nil {
+		if err := c.addReplicaNoLock(newBackend, replica, false); err != nil {
 			return err
 		}
 		// We will validate this later
-		c.setReplicaModeNoLock(address, types.RW)
+		c.setReplicaModeNoLock(replica, types.RW)
 	}
 
 	revisionCounters := make(map[string]int64)
