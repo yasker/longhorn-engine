@@ -113,12 +113,33 @@ func (c *Controller) hasWOReplica() bool {
 	return false
 }
 
-func (c *Controller) canAdd(address string) (bool, error) {
-	if c.hasReplica(address) {
+func (c *Controller) hasReplicaConflict(replica string) error {
+	name, address, err := util.GetReplicaNameAndAddress(replica)
+	if err != nil {
+		return err
+	}
+
+	for _, r := range c.replicas {
+		rName, rAddress, err := util.GetReplicaNameAndAddress(r.Address)
+		if err != nil {
+			return err
+		}
+		if rName == name || rAddress == address {
+			return fmt.Errorf("replica %v has the same name or address with existing replica %v", replica, r)
+		}
+	}
+	return nil
+}
+
+func (c *Controller) canAdd(replica string) (bool, error) {
+	if c.hasReplica(replica) {
 		return false, nil
 	}
 	if c.hasWOReplica() {
 		return false, fmt.Errorf("Can only have one WO replica at a time")
+	}
+	if err := c.hasReplicaConflict(replica); err != nil {
+		return false, err
 	}
 	return true, nil
 }
